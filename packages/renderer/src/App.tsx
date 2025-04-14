@@ -1,11 +1,23 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+import { setSecret, getSecret, deleteSecret } from "@app/preload";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
+  useEffect(() => {
+    async function demoSecrets() {
+      await setSecret("demoKey", "demoValue");
+      const value = await getSecret("demoKey");
+      console.log("Retrieved secret:", value);
+      await deleteSecret("demoKey");
+      const afterDelete = await getSecret("demoKey");
+      console.log("After delete (should be undefined):", afterDelete);
+    }
+    demoSecrets();
+  }, []);
   return (
     <>
       <div>
@@ -29,7 +41,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
