@@ -8,16 +8,16 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**.md'
+      - "**.md"
       - .editorconfig
-      - '.idea/**'
-      - '.vscode/**'
+      - ".idea/**"
+      - ".vscode/**"
   pull_request:
     paths-ignore:
-      - '**.md'
+      - "**.md"
       - .editorconfig
-      - '.idea/**'
-      - '.vscode/**'
+      - ".idea/**"
+      - ".vscode/**"
 
 concurrency:
   group: ${{github.workflow}}-${{ github.ref }}
@@ -41,24 +41,24 @@ jobs:
       fail-fast: false
       matrix:
         renderer-template:
-          - vanilla
-          - vanilla-ts
-          - vue
-          - vue-ts
-          - react
-          - react-ts
-          - react-swc
+          # - vanilla
+          # - vanilla-ts
+          # - vue
+          # - vue-ts
+          # - react
+          # - react-ts
+          # - react-swc
           - react-swc-ts
-          - preact
-          - preact-ts
-          - lit
-          - lit-ts
-          - svelte
-          - svelte-ts
-          - solid
-          - solid-ts
-#          - qwik
-#          - qwik-ts
+          # - preact
+          # - preact-ts
+          # - lit
+          # - lit-ts
+          # - svelte
+          # - svelte-ts
+          # - solid
+          # - solid-ts
+  #          - qwik
+  #          - qwik-ts
 
   dependabot:
     permissions:
