@@ -59,7 +59,13 @@ export async function initApp(initConfig: AppInitConfig) {
   await moduleRunner;
 
   // IPC handlers for secrets
-  ipcMain.handle("secrets:set", (_event, key: string, value: string) => secrets.setSecret(key, value));
-  ipcMain.handle("secrets:get", (_event, key: string) => secrets.getSecret(key));
-  ipcMain.handle("secrets:delete", (_event, key: string) => secrets.deleteSecret(key));
+  ipcMain.handle("secrets:set", (_event, key: string, value: string) =>
+    secrets.setSecret(key, value)
+  );
+  ipcMain.handle("secrets:get", (_event, key: string) =>
+    secrets.getSecret(key)
+  );
+  ipcMain.handle("secrets:delete", (_event, key: string) =>
+    secrets.deleteSecret(key)
+  );
 }

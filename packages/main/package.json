@@ -15,7 +15,8 @@
     "@app/preload": "*",
     "@app/renderer": "*",
     "electron-store": "^10.0.1",
-    "electron-updater": "6.6.2"
+    "electron-updater": "6.6.2",
+    "unpdf": "^0.12.1"
   },
   "devDependencies": {
     "@app/electron-versions": "*",
