@@ -14,37 +14,6 @@ export async function extractTxtContent(filePath: string): Promise<string> {
 }
 
 /**
- * Extracts and returns the text content from a PDF file using unpdf.
- *
- * @param filePath - Path to the PDF file to extract text from
- * @returns Promise that resolves to an array of strings, where each string represents the text content of a page
- * @throws Error if the file is not a PDF or if there's an issue accessing the file
- */
-export async function extractPdfContent(filePath: string): Promise<string[]> {
-  const pageTexts: string[] = [];
-  if (!filePath.endsWith(".pdf")) throw new Error("File must be a .pdf file");
-
-  try {
-    // Read the file as a buffer
-    const pdfBuffer = await fs.readFile(filePath);
-    // Get access to the PDF.js API
-    const { getDocument } = await getResolvedPDFJS();
-    // Load the document
-    const doc = await getDocument(new Uint8Array(pdfBuffer)).promise;
-    // Process all pages in parallel
-    const pagePromises = [];
-    for (let i = 1; i <= doc.numPages; i += 1) {
-      pagePromises.push(extractPdfPage(doc, i));
-    }
-    // Wait for all pages to be processed
-    return Promise.all(pagePromises);
-  } catch (error) {
-    console.error("Error during PDF extraction with unpdf:", error);
-    return pageTexts;
-  }
-}
-
-/**
  * Processes a single PDF page and extracts text content.
  *
  * This function extracts text from a PDF page while preserving line breaks based on
@@ -102,6 +71,70 @@ async function extractPdfPage(
 
   // Join all lines with newline characters
   return lines.join("\n");
+}
+
+/**
+ * Extracts and returns the text content from a PDF file using unpdf.
+ *
+ * @param filePath - Path to the PDF file to extract text from
+ * @returns Promise that resolves to an array of strings, where each string represents the text content of a page
+ * @throws Error if the file is not a PDF or if there's an issue accessing the file
+ */
+export async function extractPdfContent(filePath: string): Promise<string[]> {
+  const pageTexts: string[] = [];
+  if (!filePath.endsWith(".pdf")) throw new Error("File must be a .pdf file");
+
+  try {
+    // Read the file as a buffer
+    const pdfBuffer = await fs.readFile(filePath);
+    // Get access to the PDF.js API
+    const { getDocument } = await getResolvedPDFJS();
+    // Load the document
+    const doc = await getDocument(new Uint8Array(pdfBuffer)).promise;
+    // Process all pages in parallel
+    const pagePromises = [];
+    for (let i = 1; i <= doc.numPages; i += 1) {
+      pagePromises.push(extractPdfPage(doc, i));
+    }
+    // Wait for all pages to be processed
+    return Promise.all(pagePromises);
+  } catch (error) {
+    console.error("Error during PDF extraction with unpdf:", error);
+    return pageTexts;
+  }
+}
+
+/**
+ * Extracts text content from a specific page of a PDF document.
+ *
+ * @param filePath - Path to the PDF file (used for error reporting)
+ * @param pageNum - The page number to extract (1-based index)
+ * @param pdfBuffer - Buffer containing the PDF data
+ * @returns Promise that resolves to the extracted text content as a string
+ * @throws Error if the page number is invalid or if there's an issue processing the PDF
+ */
+export async function extractPdfContentSinglePage(
+  filePath: string,
+  pageNum: number,
+  pdfBuffer: Buffer<ArrayBufferLike>
+): Promise<string> {
+  if (pageNum < 1) return "";
+  try {
+    const { getDocument } = await getResolvedPDFJS();
+    const doc = await getDocument(new Uint8Array(pdfBuffer)).promise;
+    if (pageNum > doc.numPages) {
+      throw new Error(
+        `Page ${pageNum} is out of bounds. Document has ${doc.numPages} pages.`
+      );
+    }
+    return extractPdfPage(doc, pageNum);
+  } catch (error) {
+    throw new Error(
+      `Error extracting page ${pageNum} from ${filePath}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+  }
 }
 
 // Add more file-related utility functions here as needed.
