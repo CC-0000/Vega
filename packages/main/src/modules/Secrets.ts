@@ -1,6 +1,6 @@
 import { app } from "electron";
 import Store from "electron-store";
-import { safeStorage } from "electron";
+import { safeStorage, ipcMain } from "electron";
 import type { AppModule } from "../AppModule.js";
 
 interface SecretStore {
@@ -17,6 +17,13 @@ const store = new Store<{ [key: string]: string }>({
 class SecretsModule implements AppModule, SecretStore {
   enable(): void {
     // Secrets module ready; could register IPC handlers here if needed.
+    ipcMain.handle("secrets:get", (_event, key: string) => this.getSecret(key));
+    ipcMain.handle("secrets:set", (_event, key: string, value: string) =>
+      this.setSecret(key, value)
+    );
+    ipcMain.handle("secrets:delete", (_event, key: string) =>
+      this.deleteSecret(key)
+    );
   }
 
   setSecret(key: string, value: string): boolean {
