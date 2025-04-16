@@ -26,6 +26,18 @@ function secretLogout() {
   return ipcRenderer.invoke("secrets:logout");
 }
 
+function storeSecretObject(key: string, value: any) {
+  return ipcRenderer.invoke("secrets:storeSecretObject", key, value);
+}
+
+function getSecretObject(key: string) {
+  return ipcRenderer.invoke("secrets:getSecretObject", key);
+}
+
+function deleteSecretObject(key: string) {
+  return ipcRenderer.invoke("secrets:deleteSecretObject", key);
+}
+
 export {
   sha256sum,
   versions,
@@ -35,4 +47,7 @@ export {
   deleteSecret,
   secretLogin,
   secretLogout,
+  storeSecretObject,
+  getSecretObject,
+  deleteSecretObject,
 };

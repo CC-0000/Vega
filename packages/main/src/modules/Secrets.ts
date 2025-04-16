@@ -7,6 +7,15 @@ interface SecretStore {
   setSecret: (key: string, value: string) => boolean;
   getSecret: (key: string) => string | undefined;
   deleteSecret: (key: string) => void;
+  secretLogin: (
+    certificate: string,
+    privateKey: string,
+    userId: string
+  ) => boolean;
+  secretLogout: () => void;
+  storeSecretObject: <T>(key: string, value: T) => void;
+  getSecretObject: <T>(key: string) => T | undefined;
+  deleteSecretObject: (key: string) => void;
 }
 
 const store = new Store<{ [key: string]: string }>({
@@ -30,6 +39,16 @@ class SecretsModule implements AppModule, SecretStore {
       this.deleteSecret(key)
     );
     ipcMain.handle("secrets:logout", (_event) => this.secretLogout());
+    ipcMain.handle(
+      "secrets:storeSecretObject",
+      (_event, key: string, value: any) => this.storeSecretObject(key, value)
+    );
+    ipcMain.handle("secrets:getSecretObject", (_event, key: string) =>
+      this.getSecretObject(key)
+    );
+    ipcMain.handle("secrets:deleteSecretObject", (_event, key: string) =>
+      this.deleteSecretObject(key)
+    );
   }
 
   secretLogin(
@@ -69,6 +88,32 @@ class SecretsModule implements AppModule, SecretStore {
   }
 
   deleteSecret(key: string): void {
+    store.delete(key);
+  }
+
+  storeSecretObject<T>(key: string, value: T): boolean {
+    if (!safeStorage.isEncryptionAvailable()) return false;
+    const serializedValue = JSON.stringify(value);
+    const encryptedValue = safeStorage.encryptString(serializedValue);
+    store.set(key, encryptedValue.toString("base64"));
+    return true;
+  }
+
+  getSecretObject<T>(key: string): T | undefined {
+    if (!safeStorage.isEncryptionAvailable()) return undefined;
+    const encryptedValue = store.get(key);
+    if (!encryptedValue) return undefined;
+
+    try {
+      const buffer = Buffer.from(encryptedValue, "base64");
+      const decryptedString = safeStorage.decryptString(buffer);
+      return JSON.parse(decryptedString) as T;
+    } catch (error) {
+      return undefined;
+    }
+  }
+
+  deleteSecretObject(key: string): void {
     store.delete(key);
   }
 }
