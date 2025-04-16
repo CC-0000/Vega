@@ -1,6 +1,6 @@
-import {sha256sum} from './nodeCrypto.js';
-import {versions} from './versions.js';
-import {ipcRenderer} from 'electron';
+import { sha256sum } from "./nodeCrypto.js";
+import { versions } from "./versions.js";
+import { ipcRenderer } from "electron";
 
 function send(channel: string, message: string) {
   return ipcRenderer.invoke(channel, message);
@@ -18,4 +18,21 @@ function deleteSecret(key: string) {
   return ipcRenderer.invoke("secrets:delete", key);
 }
 
-export { sha256sum, versions, send, setSecret, getSecret, deleteSecret };
+function secretLogin(certificate: string, privateKey: string, userId: string) {
+  return ipcRenderer.invoke("secrets:login", certificate, privateKey, userId);
+}
+
+function secretLogout() {
+  return ipcRenderer.invoke("secrets:logout");
+}
+
+export {
+  sha256sum,
+  versions,
+  send,
+  setSecret,
+  getSecret,
+  deleteSecret,
+  secretLogin,
+  secretLogout,
+};

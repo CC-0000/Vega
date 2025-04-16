@@ -21,9 +21,32 @@ class SecretsModule implements AppModule, SecretStore {
     ipcMain.handle("secrets:set", (_event, key: string, value: string) =>
       this.setSecret(key, value)
     );
+    ipcMain.handle(
+      "secrets:login",
+      (_event, certificate: string, privateKey: string, userId: string) =>
+        this.secretLogin(certificate, privateKey, userId)
+    );
     ipcMain.handle("secrets:delete", (_event, key: string) =>
       this.deleteSecret(key)
     );
+    ipcMain.handle("secrets:logout", (_event) => this.secretLogout());
+  }
+
+  secretLogin(
+    certificate: string,
+    privateKey: string,
+    userId: string
+  ): boolean {
+    if (!this.setSecret("certificate", certificate)) return false;
+    if (!this.setSecret("privateKey", privateKey)) return false;
+    if (!this.setSecret("userId", userId)) return false;
+    return true;
+  }
+
+  secretLogout(): void {
+    this.deleteSecret("certificate");
+    this.deleteSecret("privateKey");
+    this.deleteSecret("userId");
   }
 
   setSecret(key: string, value: string): boolean {
