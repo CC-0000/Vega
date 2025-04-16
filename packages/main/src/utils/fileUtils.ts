@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import { getResolvedPDFJS } from "unpdf";
+import { OfficeParserConfig, parseOfficeAsync } from "officeparser";
 
 /**
  * Reads and returns the content of a text file.
@@ -138,3 +139,21 @@ export async function extractPdfContentSinglePage(
 }
 
 // Add more file-related utility functions here as needed.
+/**
+ * Extracts text content from an Office document (e.g., .docx, .pptx, .xlsx, .odt, .odp, .ods).
+ *
+ * @param filePath - Path to the Office document file
+ * @returns Promise that resolves to the extracted text content as a string
+ * @throws Error if the file is not an Office document or if there's an issue processing the file
+ */
+export async function extractTextFromOfficeFile(
+  filePath: string
+): Promise<string> {
+  const config: OfficeParserConfig = {
+    newlineDelimiter: "\n",
+    ignoreNotes: false,
+  };
+
+  const text = await parseOfficeAsync(filePath, config);
+  return text;
+}
