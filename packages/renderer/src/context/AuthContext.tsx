@@ -1,6 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { AuthContext, AuthProviderProps } from "./AuthContext.defs";
-import { secretLogin, secretLogout, getSecret } from "@app/preload";
+import {
+  secretLogin,
+  secretLogout,
+  getSecret,
+  connectToMqtt,
+} from "@app/preload";
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -21,6 +26,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsAuthenticated(false);
       setUserId(null);
     } finally {
+      await connectToMqtt();
       setIsLoading(false);
     }
   };
@@ -32,7 +38,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     privateKey: string
   ) => {
     await secretLogin(certificate, privateKey, newUserId);
-
+    await connectToMqtt();
     setUserId(newUserId);
     setIsAuthenticated(true);
   };

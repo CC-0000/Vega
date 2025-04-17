@@ -116,7 +116,7 @@ function HomePage() {
           // Split the comma-separated string into an array
           const extensionsArray = extensionsEnv
             .split(",")
-            .map((ext) => ext.trim());
+            .map((ext) => ext.trim().toLowerCase());
           setAllowedExtensions(extensionsArray);
         }
       } catch (error) {
