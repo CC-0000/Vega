@@ -123,3 +123,15 @@ function secretsModule(...args: ConstructorParameters<typeof SecretsModule>) {
 }
 
 export { secretsModule };
+
+// Singleton instance for direct use
+const secrets = new SecretsModule();
+
+// Export bound methods for easy import
+export const setSecret = secrets.setSecret.bind(secrets);
+export const getSecret = secrets.getSecret.bind(secrets);
+export const secretLogin = secrets.secretLogin.bind(secrets);
+export const secretLogout = secrets.secretLogout.bind(secrets);
+export const storeSecretObject = secrets.storeSecretObject.bind(secrets);
+export const getSecretObject = secrets.getSecretObject.bind(secrets);
+export const deleteSecretObject = secrets.deleteSecretObject.bind(secrets);
