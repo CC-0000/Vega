@@ -30,7 +30,6 @@ class MqttModule implements AppModule {
   private mqttClient: MqttClient | undefined;
 
   enable(): void {
-    this.connectToMQTT();
     ipcMain.handle("mqtt:makeCrawlRequest", async () => {
       if (this.mqttClient !== undefined && this.mqttClient.isConnected()) {
         await this.mqttClient.makeCrawlRequest();
@@ -73,7 +72,7 @@ class MqttModule implements AppModule {
       port: 8883,
       protocol: "mqtts",
       tls: {
-        ca: fs.readFileSync(path.join(__dirname, "../certs/ca.crt")),
+        ca: fs.readFileSync(new URL("../certs/ca.crt", import.meta.url)),
         cert: certificatePem,
         key: privateKeyPem,
       },

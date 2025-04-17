@@ -48,7 +48,7 @@ export async function getAllAllowedFiles(
   // Get allowed extensions from environment variables or use defaults
   const envExtensions = "pdf,txt,docx,pptx,xlsx,odt,odp,ods"; // TODO: move this to an env file
   const allowedExtensions = envExtensions
-    ? envExtensions.split(",").map((ext) => ext.trim())
+    ? envExtensions.split(",").map((ext) => ext.trim().toLowerCase())
     : [];
 
   return allFiles.filter((file) => {

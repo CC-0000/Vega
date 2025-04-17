@@ -196,7 +196,7 @@ export class MqttClient extends EventEmitter {
 
       // Extract text based on file type
       let chunks: TextChunk[] = [];
-      switch (path.extname(filePath)) {
+      switch (path.extname(filePath).toLowerCase()) {
         case ".pdf":
           const pagedContent = await extractPdfContent(filePath);
           chunks = splitPagedContentIntoSemanticChunks(pagedContent, fileHash);
@@ -370,7 +370,7 @@ export class MqttClient extends EventEmitter {
             let fileContent = "";
             let fileBufferContent = null;
 
-            switch (path.extname(filePath)) {
+            switch (path.extname(filePath).toLowerCase()) {
               case ".pdf":
                 isPdfFlag = true;
                 fileBufferContent = await fs.readFile(filePath);
@@ -495,11 +495,6 @@ export class MqttClient extends EventEmitter {
     const syncedFilePaths =
       (getSecretObject("syncedFilePaths") as string[]) ?? [];
 
-    if (syncedFolderPaths.length === 0 && syncedFilePaths.length === 0) {
-      console.warn("No synced folders or files found in store");
-      return;
-    }
-
     const allFilePaths = await getAllAllowedFiles(
       syncedFolderPaths,
       syncedFilePaths
@@ -517,7 +512,6 @@ export class MqttClient extends EventEmitter {
     const messageBuffer = Buffer.from(serializedMessage);
 
     await this.send(this.newCrawlTopic, messageBuffer);
-    console.log("Crawl request sent successfully");
   }
 
   /**

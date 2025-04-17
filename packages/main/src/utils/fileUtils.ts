@@ -83,7 +83,8 @@ async function extractPdfPage(
  */
 export async function extractPdfContent(filePath: string): Promise<string[]> {
   const pageTexts: string[] = [];
-  if (!filePath.endsWith(".pdf")) throw new Error("File must be a .pdf file");
+  if (!filePath.toLowerCase().endsWith(".pdf"))
+    throw new Error("File must be a .pdf file");
 
   try {
     // Read the file as a buffer
