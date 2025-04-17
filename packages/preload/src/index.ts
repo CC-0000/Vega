@@ -53,8 +53,12 @@ async function makeCrawlRequest(): Promise<void> {
   return ipcRenderer.invoke("mqtt:makeCrawlRequest");
 }
 
-function connectToMQTT(): void {
-  ipcRenderer.invoke("mqtt:connectToMQTT");
+async function connectToMqtt(): Promise<void> {
+  return ipcRenderer.invoke("mqtt:connectToMqtt");
+}
+
+function getMqttStatus(): Promise<string> {
+  return ipcRenderer.invoke("mqtt:getStatus");
 }
 
 async function showOpenDialog(options: Electron.OpenDialogOptions) {
@@ -83,7 +87,8 @@ export {
   getFileMetadata,
   isDirectory,
   makeCrawlRequest,
-  connectToMQTT,
+  connectToMqtt,
+  getMqttStatus,
   showOpenDialog,
   onMqttStatus,
 };

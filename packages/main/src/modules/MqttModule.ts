@@ -38,9 +38,15 @@ class MqttModule implements AppModule {
       }
       return;
     });
-    ipcMain.handle("mqtt:connectToMQTT", () => {
+    ipcMain.handle("mqtt:connectToMqtt", () => {
       this.connectToMQTT();
       return;
+    });
+    ipcMain.handle("mqtt:getStatus", () => {
+      if (this.mqttClient !== undefined && this.mqttClient.isConnected()) {
+        return "connected";
+      }
+      return "disconnected";
     });
   }
 

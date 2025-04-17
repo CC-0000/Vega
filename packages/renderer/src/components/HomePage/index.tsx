@@ -21,6 +21,8 @@ import {
   makeCrawlRequest,
   storeSecretObject,
   showOpenDialog,
+  onMqttStatus,
+  getMqttStatus,
 } from "@app/preload";
 
 interface FileItem {
@@ -39,8 +41,7 @@ interface FolderItem {
 
 function HomePage() {
   const { logout } = useAuth();
-  // const [mqttStatus, setMqttStatus] = useState<string>("unknown");
-  const [mqttStatus] = useState<string>("unknown");
+  const [mqttStatus, setMqttStatus] = useState<string>("unknown");
   const [files, setFiles] = useState<FileItem[]>([]);
   const [folders, setFolders] = useState<FolderItem[]>([]);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
@@ -120,33 +121,24 @@ function HomePage() {
         }
       } catch (error) {
         // If there's an error, use the default extensions
-        // eslint-disable-next-line no-console
         console.error("Failed to load allowed extensions from env:", error);
       }
     }
 
     loadAllowedExtensions();
 
-    // // First get the current status
-    // window.electron.mqtt
-    //   .getStatus()
-    //   .then((status) => {
-    //     setMqttStatus(status);
-    //     return undefined;
-    //   })
-    //   .catch((error) => {
-    //     setMqttStatus(error);
-    //   });
+    // First get the current status
+    getMqttStatus()
+      .then((status) => {
+        setMqttStatus(status);
+        return undefined;
+      })
+      .catch((error) => {
+        setMqttStatus(error);
+      });
 
-    // // Then set up listener for future changes
-    // const removeListener = window.electron.ipcRenderer.on(
-    //   "mqtt-status",
-    //   (data: any) => {
-    //     if (data && typeof data === "object" && "status" in data) {
-    //       setMqttStatus(data.status);
-    //     }
-    //   }
-    // );
+    // Then set up listener for future changes
+    onMqttStatus(({ status }) => setMqttStatus(status));
 
     // Load synced folder paths from secure storage
     async function loadSyncedFolders() {
@@ -164,8 +156,6 @@ function HomePage() {
           setFolders([]);
         }
       } catch (error) {
-        // Log error but don't display to user
-        // eslint-disable-next-line no-console
         console.error("Failed to load synced folder paths:", error);
         setFolders([]);
       }
@@ -211,8 +201,6 @@ function HomePage() {
           setFiles([]);
         }
       } catch (error) {
-        // Log error but don't display to user
-        // eslint-disable-next-line no-console
         console.error("Failed to load synced file paths:", error);
         setFiles([]);
       }
@@ -284,7 +272,6 @@ function HomePage() {
         return undefined;
       })
       .catch((error) => {
-        // eslint-disable-next-line no-console
         console.error("Failed to remove folder from storage:", error);
       });
   }
@@ -321,11 +308,6 @@ function HomePage() {
         const filteredFolderPaths = await filterDirectories(result.filePaths);
 
         if (filteredFolderPaths.length === 0) {
-          // All selected folders were filtered out
-          // eslint-disable-next-line no-console
-          console.log(
-            "All selected folders were filtered out based on criteria"
-          );
           return;
         }
 
@@ -337,7 +319,6 @@ function HomePage() {
             existingFolderPaths = storedPaths;
           }
         } catch (error) {
-          // eslint-disable-next-line no-console
           console.error("Error retrieving existing folder paths:", error);
         }
 
@@ -358,7 +339,6 @@ function HomePage() {
         setFolders(folderItems);
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to add folders:", error);
     }
   }
@@ -415,9 +395,6 @@ function HomePage() {
         const filteredFilePaths = await filterFiles(result.filePaths);
 
         if (filteredFilePaths.length === 0) {
-          // All selected files were filtered out
-          // eslint-disable-next-line no-console
-          console.log("All selected files were filtered out based on criteria");
           return;
         }
 
@@ -429,7 +406,6 @@ function HomePage() {
             existingFilePaths = storedPaths;
           }
         } catch (error) {
-          // eslint-disable-next-line no-console
           console.error("Error retrieving existing file paths:", error);
         }
 
@@ -470,7 +446,6 @@ function HomePage() {
         setFiles(fileItems);
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to add files:", error);
     }
   }
@@ -495,7 +470,6 @@ function HomePage() {
         return undefined;
       })
       .catch((error) => {
-        // eslint-disable-next-line no-console
         console.error("Failed to remove file from storage:", error);
       });
   }
