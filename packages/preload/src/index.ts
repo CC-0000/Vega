@@ -38,6 +38,24 @@ function deleteSecretObject(key: string) {
   return ipcRenderer.invoke("secrets:deleteSecretObject", key);
 }
 
+async function getFileMetadata(
+  filePath: string
+): Promise<{ size: number; lastModified: number } | undefined> {
+  return ipcRenderer.invoke("fileops:getMetadata", filePath);
+}
+
+async function isDirectory(filePath: string): Promise<boolean> {
+  return ipcRenderer.invoke("fileops:isDirectory", filePath);
+}
+
+async function makeCrawlRequest(): Promise<void> {
+  // TODO: ipcRenderer.invoke("mqtt:makeCrawlRequest");
+}
+
+async function showOpenDialog(options: Electron.OpenDialogOptions) {
+  return ipcRenderer.invoke("dialog:showOpenDialog", options);
+}
+
 export {
   sha256sum,
   versions,
@@ -50,4 +68,8 @@ export {
   storeSecretObject,
   getSecretObject,
   deleteSecretObject,
+  getFileMetadata,
+  isDirectory,
+  makeCrawlRequest,
+  showOpenDialog,
 };
