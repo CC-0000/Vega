@@ -1,47 +1,76 @@
-import { useState, useEffect } from "react";
-import { setSecret, getSecret, deleteSecret } from "@app/preload";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+// src/renderer/App.tsx
+import {
+  MemoryRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import React from "react";
 import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0);
+// Import components
+import Login from "./components/Login";
+import HomePage from "./components/HomePage";
+import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./context/AuthContext.defs";
 
-  useEffect(() => {
-    async function demoSecrets() {
-      await setSecret("demoKey", "demoValue");
-      const value = await getSecret("demoKey");
-      console.log("Retrieved secret:", value);
-      await deleteSecret("demoKey");
-      const afterDelete = await getSecret("demoKey");
-      console.log("After delete (should be undefined):", afterDelete);
-    }
-    demoSecrets();
-  }, []);
+// Protected route component
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null; // or a loading spinner
+  }
+
+  return isAuthenticated ? children : <Navigate to="/" />;
+}
+
+// Public route that redirects to home if authenticated
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null; // or a loading spinner
+  }
+
+  return isAuthenticated ? <Navigate to="/home" /> : children;
+}
+
+function AppRoutes() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Router>
+      <Routes>
+        {/* Login route */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+
+        {/* Protected home route */}
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Redirect any unknown routes to login */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
+}
