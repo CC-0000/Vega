@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package vega;
+
+message NewCrawl {
+  repeated string filePaths = 1;
+  repeated string fileHashes = 2;
+}
+
+enum Platform {
+    PLATFORM_LOCAL = 0;
+    PLATFORM_GOOGLE_DRIVE = 1;
+    PLATFORM_GOOGLE_DOCS = 2;
+    PLATFORM_MICROSOFT = 3;
+    PLATFORM_NOTION = 4;
+}
+
+message Metadata {
+    google.protobuf.Timestamp date_created = 1; // "2017-02-17:0012"
+    google.protobuf.Timestamp date_last_modified = 2; // "2017-02-19:0164"
+    string user_id = 3;         // "af948791-409b-43f3-807a-9dcf6589b056"
+    string file_path = 4;       // "path/to/my/file.txt"
+    uint32 start = 5;       // line 24 <-- start of the block INCLUSIVE
+    uint32 end = 6;       // Col 10 <-- start of the block INCLUSIVE
+    string title = 7;          // "My journal"
+    Platform platform = 8;     // google, notion, etc.
+    string file_id = 9;         // e.g., "4i23uh5i-2342-g452-g5gg-o9385h6dahl1"
+    string resource_type = 10;   // e.g., "text/plain"
+    string file_url = 11;        // e.g., "https://drive.google.com/file/xyz"
+    string chunk_id = 12;        // e.g., "9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9-12"
+    string service = 13;       // google drive, gmail
+}
+
+message TextChunkMessage {
+    Metadata metadata = 1;
+    string content = 2;
+}
+
+message QueryRequestMessage {
+    int64 request_id = 1;
+    repeated Metadata requestedChunks = 2;
+}
+  
+message QueryResponseMessage {
+    int64 request_id = 1;
+    repeated TextChunkMessage textChunks = 2;
+}

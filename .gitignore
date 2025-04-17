@@ -60,3 +60,7 @@ thumbs.db
 # Editor-based Rest Client
 .idea/httpRequests
 /.idea/csv-plugin.xml
+
+# protos
+packages/main/src/protos/vega.ts
+packages/main/src/protos/google/

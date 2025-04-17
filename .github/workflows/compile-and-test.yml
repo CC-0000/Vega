@@ -7,7 +7,7 @@ on:
         description: Define what vite template should be used to create renderer in case if renderer package doesn't exist
         required: false
         type: string
-        default: ''
+        default: ""
       app-version:
         required: true
         type: string
@@ -17,7 +17,7 @@ on:
 
 defaults:
   run:
-    shell: 'bash'
+    shell: "bash"
 
 permissions:
   contents: write
@@ -56,6 +56,8 @@ jobs:
         name: Setup boilerplate
         with:
           renderer-template: ${{inputs.renderer-template}}
+
+      - run: npm run gen:proto --workspace=@app/main
 
       - run: npm version "${{inputs.app-version}}" --no-git-tag-version
       - run: npm run compile -- -p never
