@@ -10,6 +10,7 @@ import { allowExternalUrls } from "./modules/ExternalUrls.js";
 import { secretsModule } from "./modules/Secrets.js";
 import { mqttModule } from "./modules/MqttModule.js";
 import { dialogModule } from "./modules/DialogModule.js";
+import { fileOpsModule } from "./modules/FileOpsModule.js";
 
 export async function initApp(initConfig: AppInitConfig) {
   const moduleRunner = createModuleRunner()
@@ -26,6 +27,7 @@ export async function initApp(initConfig: AppInitConfig) {
     .init(secretsModule())
     .init(mqttModule())
     .init(dialogModule())
+    .init(fileOpsModule())
 
     // Install DevTools extension if needed
     // .init(chromeDevToolsExtension({extension: 'VUEJS3_DEVTOOLS'}))
