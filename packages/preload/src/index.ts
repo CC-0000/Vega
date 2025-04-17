@@ -2,6 +2,7 @@ import { sha256sum } from "./nodeCrypto.js";
 import { versions } from "./versions.js";
 import { ipcRenderer } from "electron";
 
+// Functions
 function send(channel: string, message: string) {
   return ipcRenderer.invoke(channel, message);
 }
@@ -49,11 +50,22 @@ async function isDirectory(filePath: string): Promise<boolean> {
 }
 
 async function makeCrawlRequest(): Promise<void> {
-  // TODO: ipcRenderer.invoke("mqtt:makeCrawlRequest");
+  return ipcRenderer.invoke("mqtt:makeCrawlRequest");
+}
+
+function connectToMQTT(): void {
+  ipcRenderer.invoke("mqtt:connectToMQTT");
 }
 
 async function showOpenDialog(options: Electron.OpenDialogOptions) {
   return ipcRenderer.invoke("dialog:showOpenDialog", options);
+}
+
+// Callbacks
+function onMqttStatus(
+  callback: (payload: { status: "connected" | "disconnected" }) => void
+) {
+  ipcRenderer.on("mqtt:status", (_event, payload) => callback(payload));
 }
 
 export {
@@ -71,5 +83,7 @@ export {
   getFileMetadata,
   isDirectory,
   makeCrawlRequest,
+  connectToMQTT,
   showOpenDialog,
+  onMqttStatus,
 };
