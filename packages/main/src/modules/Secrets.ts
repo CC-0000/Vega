@@ -65,6 +65,14 @@ class SecretsModule implements AppModule, SecretStore {
     privateKey: string,
     userId: string
   ): boolean {
+    // Check if we're logging in as a different user
+    const currentUserId = this.getSecret("userId");
+    if (currentUserId && currentUserId !== userId) {
+      // Delete user-specific data when switching users
+      this.deleteSecretObject("syncedFolderPaths");
+      this.deleteSecretObject("syncedFilePaths");
+    }
+
     if (!this.setSecret("certificate", certificate)) return false;
     if (!this.setSecret("privateKey", privateKey)) return false;
     if (!this.setSecret("userId", userId)) return false;
@@ -74,7 +82,6 @@ class SecretsModule implements AppModule, SecretStore {
   secretLogout(): void {
     this.deleteSecret("certificate");
     this.deleteSecret("privateKey");
-    this.deleteSecret("userId");
   }
 
   setSecret(key: string, value: string): boolean {
