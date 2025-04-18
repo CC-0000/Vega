@@ -39,6 +39,7 @@ jobs:
         name: Setup boilerplate
         with:
           renderer-template: ${{inputs.renderer-template}}
+      - run: npm run gen:proto --workspace=@app/main
       - run: npm run typecheck --if-present
 
   compile:
