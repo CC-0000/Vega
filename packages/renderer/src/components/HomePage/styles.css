@@ -11,18 +11,8 @@
   height: 100vh;
   width: 100vw;
   background-color: #f5f7fa;
-  font-family:
-    'Work Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Open Sans',
-    'Helvetica Neue',
-    sans-serif;
+  font-family: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   color: #1e293b;
   overflow: hidden;
 }
@@ -136,11 +126,8 @@
   white-space: nowrap;
   z-index: 100;
   opacity: 0;
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
   transform: translateY(-50%);
   margin-left: 10px;
@@ -168,7 +155,7 @@
 }
 
 .tooltip::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: -10px;
@@ -233,7 +220,7 @@
   font-weight: 600;
   color: #1e293b;
   margin-bottom: 24px;
-  font-family: 'Work Sans', sans-serif;
+  font-family: "Work Sans", sans-serif;
 }
 
 /* Folders heading */
@@ -242,7 +229,7 @@
   font-weight: 600;
   color: #1e293b;
   margin-bottom: 16px;
-  font-family: 'Work Sans', sans-serif;
+  font-family: "Work Sans", sans-serif;
 }
 
 /* Action buttons */
@@ -338,7 +325,7 @@
   color: #334155;
   text-align: center;
   font-weight: 500;
-  font-family: 'Work Sans', sans-serif;
+  font-family: "Work Sans", sans-serif;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -382,7 +369,7 @@
   font-weight: 600;
   color: #1e293b;
   margin-bottom: 16px;
-  font-family: 'Work Sans', sans-serif;
+  font-family: "Work Sans", sans-serif;
   display: inline-block;
 }
 
@@ -422,6 +409,7 @@
   padding: 12px 16px;
   border-radius: 8px;
   transition: all 0.2s ease;
+  box-sizing: border-box;
   width: 100%;
   overflow: hidden;
 }
@@ -463,7 +451,7 @@
   font-weight: 500;
   color: #334155;
   margin-bottom: 4px;
-  font-family: 'Work Sans', sans-serif;
+  font-family: "Work Sans", sans-serif;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -513,6 +501,9 @@
   opacity: 0;
   position: absolute;
   right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Show the remove button on hover */

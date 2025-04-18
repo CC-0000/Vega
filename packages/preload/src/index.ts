@@ -7,6 +7,13 @@ function send(channel: string, message: string) {
   return ipcRenderer.invoke(channel, message);
 }
 
+async function getAppConstants(): Promise<{
+  ALLOWED_EXTENSIONS: string[];
+  API_ENDPOINT: string;
+}> {
+  return ipcRenderer.invoke("app:getConstants");
+}
+
 function setSecret(key: string, value: string) {
   return ipcRenderer.invoke("secrets:set", key, value);
 }
@@ -67,7 +74,7 @@ async function showOpenDialog(options: Electron.OpenDialogOptions) {
 
 // Callbacks
 function onMqttStatus(
-  callback: (payload: { status: "connected" | "disconnected" }) => void
+  callback: (payload: { status: "Connected" | "Disconnected" }) => void
 ) {
   ipcRenderer.on("mqtt:status", (_event, payload) => callback(payload));
 }
@@ -91,4 +98,5 @@ export {
   getMqttStatus,
   showOpenDialog,
   onMqttStatus,
+  getAppConstants,
 };

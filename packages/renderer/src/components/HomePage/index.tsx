@@ -23,6 +23,7 @@ import {
   showOpenDialog,
   onMqttStatus,
   getMqttStatus,
+  getAppConstants,
 } from "@app/preload";
 
 interface FileItem {
@@ -41,7 +42,7 @@ interface FolderItem {
 
 function HomePage() {
   const { logout } = useAuth();
-  const [mqttStatus, setMqttStatus] = useState<string>("unknown");
+  const [mqttStatus, setMqttStatus] = useState<string>("Unknown");
   const [files, setFiles] = useState<FileItem[]>([]);
   const [folders, setFolders] = useState<FolderItem[]>([]);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
@@ -108,24 +109,10 @@ function HomePage() {
   }
 
   useEffect(() => {
-    // Load allowed file extensions from environment variables
-    async function loadAllowedExtensions() {
-      try {
-        const extensionsEnv = "pdf,txt,docx,pptx,xlsx,odt,odp,ods"; // TODO: move this to an env file
-        if (extensionsEnv) {
-          // Split the comma-separated string into an array
-          const extensionsArray = extensionsEnv
-            .split(",")
-            .map((ext) => ext.trim().toLowerCase());
-          setAllowedExtensions(extensionsArray);
-        }
-      } catch (error) {
-        // If there's an error, use the default extensions
-        console.error("Failed to load allowed extensions from env:", error);
-      }
-    }
-
-    loadAllowedExtensions();
+    // Load allowed extensions from global config
+    getAppConstants().then(({ ALLOWED_EXTENSIONS }) => {
+      setAllowedExtensions(ALLOWED_EXTENSIONS);
+    });
 
     // First get the current status
     getMqttStatus()

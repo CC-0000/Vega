@@ -81,13 +81,13 @@ class MqttModule implements AppModule {
 
     this.mqttClient.on("Connected", () => {
       BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("mqtt:status", { status: "connected" });
+        win.webContents.send("mqtt:status", { status: "Connected" });
       });
     });
 
     this.mqttClient.on("Disconnected", () => {
       BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("mqtt:status", { status: "disconnected" });
+        win.webContents.send("mqtt:status", { status: "Disconnected" });
       });
     });
 

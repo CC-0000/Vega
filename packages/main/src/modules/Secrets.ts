@@ -39,6 +39,15 @@ class SecretsModule implements AppModule, SecretStore {
       this.deleteSecret(key)
     );
     ipcMain.handle("secrets:logout", (_event) => this.secretLogout());
+
+    ipcMain.handle("app:getConstants", async () => {
+      // Import here to avoid circular deps if needed
+      const constants = await import("../constants/constants.js");
+      return {
+        ALLOWED_EXTENSIONS: constants.ALLOWED_EXTENSIONS,
+        API_ENDPOINT: constants.API_ENDPOINT,
+      };
+    });
     ipcMain.handle(
       "secrets:storeSecretObject",
       (_event, key: string, value: any) => this.storeSecretObject(key, value)

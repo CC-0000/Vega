@@ -488,11 +488,10 @@ export class MqttClient extends EventEmitter {
       return;
     }
     // get the list of folder and file paths from the electron store
-    const syncedFolderPaths =
-      (getSecretObject("syncedFolderPaths") as string[]) ?? [];
-
-    const syncedFilePaths =
-      (getSecretObject("syncedFilePaths") as string[]) ?? [];
+    const syncedFolderPaths = (getSecretObject("syncedFolderPaths") ??
+      []) as string[];
+    const syncedFilePaths = (getSecretObject("syncedFilePaths") ??
+      []) as string[];
 
     const allFilePaths = await getAllAllowedFiles(
       syncedFolderPaths,

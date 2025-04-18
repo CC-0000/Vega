@@ -1,6 +1,7 @@
 import path from "path";
 import * as fs from "node:fs/promises";
 import crypto from "crypto";
+import { ALLOWED_EXTENSIONS } from "../constants/constants.js";
 
 /**
  * Recursively reads all files from a directory and its subdirectories.
@@ -45,15 +46,9 @@ export async function getAllAllowedFiles(
   // Combine with explicitly provided file paths, removing duplicates
   const allFiles = [...new Set([...dFiles, ...filePaths])];
 
-  // Get allowed extensions from environment variables or use defaults
-  const envExtensions = "pdf,txt,docx,pptx,xlsx,odt,odp,ods"; // TODO: move this to an env file
-  const allowedExtensions = envExtensions
-    ? envExtensions.split(",").map((ext) => ext.trim().toLowerCase())
-    : [];
-
   return allFiles.filter((file) => {
     const extension = path.extname(file).toLowerCase().substring(1);
-    return allowedExtensions.includes(extension);
+    return ALLOWED_EXTENSIONS.includes(extension);
   });
 }
 

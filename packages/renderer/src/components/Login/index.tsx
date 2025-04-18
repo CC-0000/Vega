@@ -4,6 +4,7 @@ import * as forge from "node-forge";
 import "./styles.css";
 import { useAuth } from "../../context/AuthContext.defs";
 import googleIcon from "../../assets/react.svg";
+import { getAppConstants } from "@app/preload";
 
 interface AuthState {
   isLoading: boolean;
@@ -100,13 +101,11 @@ function Login() {
       setAuthState((prev) => ({ ...prev, isLoading: true, error: "" }));
 
       // Step 2: Send login request to server
-      const loginResponse = await axios.post(
-        `http://localhost:8080/api/login`, // TODO: change to env variables
-        {
-          email,
-          password,
-        }
-      );
+      const { API_ENDPOINT } = await getAppConstants();
+      const loginResponse = await axios.post(`${API_ENDPOINT}/api/login`, {
+        email,
+        password,
+      });
 
       // Check for error in login response
       if (loginResponse.data.error) {
@@ -120,14 +119,11 @@ function Login() {
       const { privateKey, csrBase64 } = await generateKeyPairAndCSR(userId);
 
       // Step 3: Send CSR to server
-      const csrResponse = await axios.post(
-        `http://localhost:8080/api/csr`, // TODO: change to env variables
-        {
-          email,
-          password,
-          csr_base64: csrBase64,
-        }
-      );
+      const csrResponse = await axios.post(`${API_ENDPOINT}/api/csr`, {
+        email,
+        password,
+        csr_base64: csrBase64,
+      });
 
       const certificateBase64 = csrResponse.data.certificate_base64;
 
