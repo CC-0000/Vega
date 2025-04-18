@@ -20,7 +20,6 @@ import {
   getFileHashes,
 } from "./helperUtils.js";
 import { getSecretObject } from "../modules/Secrets.js";
-import { Timestamp } from "../protos/google/protobuf/timestamp.js";
 
 export interface MqttTlsOptions {
   ca?: Buffer | string; // CA certificate
@@ -190,8 +189,8 @@ export class MqttClient extends EventEmitter {
     try {
       // Get file stats to extract creation and modification dates
       const stats = await fs.stat(filePath);
-      const dateCreated = Timestamp.fromDate(stats.birthtime);
-      const dateLastModified = Timestamp.fromDate(stats.mtime);
+      const dateCreated = stats.birthtime;
+      const dateLastModified = stats.mtime;
       const fileHash = await getFileHash(filePath);
 
       // Extract text based on file type
@@ -226,7 +225,7 @@ export class MqttClient extends EventEmitter {
       const { userId } = this.options;
 
       // Determine platform - assuming local for this example
-      const platform = proto.Platform.LOCAL;
+      const platform = proto.Platform.PLATFORM_LOCAL;
 
       // Publish each chunk with metadata
       for (const chunk of chunks) {
@@ -246,7 +245,7 @@ export class MqttClient extends EventEmitter {
         });
 
         const serializedMessage =
-          proto.TextChunkMessage.toBinary(textChunkMessage);
+          proto.TextChunkMessage.encode(textChunkMessage).finish();
         const messageBuffer = Buffer.from(serializedMessage);
 
         await this.send(this.newChunkTopic, messageBuffer);
@@ -268,7 +267,7 @@ export class MqttClient extends EventEmitter {
       });
 
       const serializedFileDoneMessage =
-        proto.TextChunkMessage.toBinary(fileDoneMessage);
+        proto.TextChunkMessage.encode(fileDoneMessage).finish();
       const fileDoneBuffer = Buffer.from(serializedFileDoneMessage);
 
       await this.send(this.newChunkTopic, fileDoneBuffer);
@@ -290,7 +289,7 @@ export class MqttClient extends EventEmitter {
 
     try {
       // Parse the protobuf message
-      const crawlRequest = proto.NewCrawl.fromBinary(message);
+      const crawlRequest = proto.NewCrawl.decode(message);
 
       // Process each filepath in parallel
       await Promise.all(
@@ -303,14 +302,14 @@ export class MqttClient extends EventEmitter {
       const crawlDoneMessage = proto.TextChunkMessage.create({
         metadata: {
           userId: this.options.userId,
-          platform: proto.Platform.LOCAL,
+          platform: proto.Platform.PLATFORM_LOCAL,
         },
         content: "<crawl_done>",
       });
 
       // Serialize the message
       const serializedMessage =
-        proto.TextChunkMessage.toBinary(crawlDoneMessage);
+        proto.TextChunkMessage.encode(crawlDoneMessage).finish();
       const messageBuffer = Buffer.from(serializedMessage);
 
       // Publish the message
@@ -330,7 +329,7 @@ export class MqttClient extends EventEmitter {
     try {
       // 1. Parse the incoming message
       const queryRequest: proto.QueryRequestMessage =
-        proto.QueryRequestMessage.fromBinary(message);
+        proto.QueryRequestMessage.decode(message);
       const { requestId, requestedChunks } = queryRequest;
 
       // 2. Prepare the response object
@@ -465,7 +464,7 @@ export class MqttClient extends EventEmitter {
 
       // 7. Serialize the response
       const serializedResponse =
-        proto.QueryResponseMessage.toBinary(queryResponse);
+        proto.QueryResponseMessage.encode(queryResponse).finish();
       const responseBuffer = Buffer.from(serializedResponse);
 
       // 8. Send the response
@@ -508,7 +507,7 @@ export class MqttClient extends EventEmitter {
     };
 
     // Serialize and send the request
-    const serializedMessage = proto.NewCrawl.toBinary(crawlRequest);
+    const serializedMessage = proto.NewCrawl.encode(crawlRequest).finish();
     const messageBuffer = Buffer.from(serializedMessage);
 
     await this.send(this.newCrawlTopic, messageBuffer);

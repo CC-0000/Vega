@@ -4,7 +4,7 @@
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "gen:proto": "protoc --ts_out=src/protos --proto_path=src/protos src/protos/vega.proto"
+    "gen:proto": "protoc --ts_proto_out=src/protos --ts_proto_opt=esModuleInterop=true --ts_proto_opt=importSuffix=.js --proto_path=src/protos src/protos/vega.proto"
   },
   "exports": {
     ".": {
@@ -23,8 +23,8 @@
   },
   "devDependencies": {
     "@app/electron-versions": "*",
-    "@protobuf-ts/plugin": "^2.9.6",
     "electron-devtools-installer": "3.2.0",
+    "ts-proto": "^2.7.0",
     "typescript": "5.8.3",
     "vite": "6.3.1"
   }
