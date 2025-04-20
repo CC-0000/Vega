@@ -14,20 +14,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Function to check and update authentication state
   const refreshAuthState = async () => {
-    setIsLoading(true);
     try {
-      const certificate = await getSecret("certificate");
-      const storedUserId = await getSecret("userId");
+      setIsLoading(true);
+      try {
+        const certificate = await getSecret("certificate");
+        const storedUserId = await getSecret("userId");
 
-      setIsAuthenticated(!!certificate);
-      setUserId(storedUserId || null);
+        setIsAuthenticated(!!certificate);
+        setUserId(storedUserId || null);
+      } catch (error) {
+        console.error("Error checking auth state:", error);
+        setIsAuthenticated(false);
+        setUserId(null);
+      } finally {
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error("Error checking auth state:", error);
-      setIsAuthenticated(false);
-      setUserId(null);
-    } finally {
-      await connectToMqtt();
-      setIsLoading(false);
     }
   };
 
@@ -38,9 +41,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     privateKey: string
   ) => {
     await secretLogin(certificate, privateKey, newUserId);
-    await connectToMqtt();
     setUserId(newUserId);
     setIsAuthenticated(true);
+    await connectToMqtt();
   };
 
   // Logout function
