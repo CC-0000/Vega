@@ -64,6 +64,10 @@ async function connectToMqtt(): Promise<void> {
   return ipcRenderer.invoke("mqtt:connectToMqtt");
 }
 
+async function disconnectFromMqtt(): Promise<void> {
+  return ipcRenderer.invoke("mqtt:disconnectFromMqtt");
+}
+
 function getMqttStatus(): Promise<string> {
   return ipcRenderer.invoke("mqtt:getStatus");
 }
@@ -95,6 +99,7 @@ export {
   isDirectory,
   makeCrawlRequest,
   connectToMqtt,
+  disconnectFromMqtt,
   getMqttStatus,
   showOpenDialog,
   onMqttStatus,

@@ -5,6 +5,7 @@ import {
   secretLogout,
   getSecret,
   connectToMqtt,
+  disconnectFromMqtt,
 } from "@app/preload";
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -52,6 +53,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await secretLogout();
       setIsAuthenticated(false);
       setUserId(null);
+      await disconnectFromMqtt();
     } catch (error) {
       console.error("Error during logout:", error);
     }

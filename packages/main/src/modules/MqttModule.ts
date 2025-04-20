@@ -77,6 +77,11 @@ class MqttModule implements AppModule {
       }
       return "Disconnected";
     });
+
+    ipcMain.handle("mqtt:disconnectFromMqtt", async () => {
+      await this.disconnectFromMQTT();
+      return;
+    });
     const privateKeyPem = getSecret("privateKey");
     const certificateBase64 = getSecret("certificate");
     const userId = getSecret("userId");
@@ -117,6 +122,15 @@ class MqttModule implements AppModule {
         userId,
       });
     });
+  }
+
+  public async disconnectFromMQTT(): Promise<void> {
+    if (this.mqttClient) {
+      await this.mqttClient.disconnect();
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("mqtt:status", { status: "Disconnected" });
+      });
+    }
   }
 }
 
