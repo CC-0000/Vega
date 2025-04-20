@@ -3,7 +3,6 @@ import { MqttClient } from "../utils/mqttUtils.js";
 import { getSecret } from "../modules/Secrets.js";
 import { ipcMain, BrowserWindow } from "electron";
 import fs from "fs";
-import path from "path";
 
 /**
  * Converts a base64-encoded certificate to PEM format
@@ -26,10 +25,41 @@ function convertBase64CertificateToPem(base64Certificate: string): string {
     : `-----BEGIN CERTIFICATE-----\n${decodedCert}\n-----END CERTIFICATE-----`;
 }
 
+// Simple functional mutex
+function createMutex() {
+  let lock: Promise<void> = Promise.resolve();
+  return async function <T>(fn: () => Promise<T>): Promise<T> {
+    let unlock: () => void;
+    const willLock = new Promise<void>((resolve) => (unlock = resolve));
+    const prevLock = lock;
+    lock = lock.then(() => willLock);
+    await prevLock;
+    try {
+      return await fn();
+    } finally {
+      unlock!();
+    }
+  };
+}
+
 class MqttModule implements AppModule {
   private mqttClient: MqttClient | undefined;
+  private connectMutex = createMutex();
 
   enable(): void {
+    this.mqttClient = new MqttClient();
+    this.mqttClient.on("Connected", () => {
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("mqtt:status", { status: "Connected" });
+      });
+    });
+
+    this.mqttClient.on("Disconnected", () => {
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send("mqtt:status", { status: "Disconnected" });
+      });
+    });
+
     ipcMain.handle("mqtt:makeCrawlRequest", async () => {
       if (this.mqttClient !== undefined && this.mqttClient.isConnected()) {
         await this.mqttClient.makeCrawlRequest();
@@ -43,19 +73,10 @@ class MqttModule implements AppModule {
     });
     ipcMain.handle("mqtt:getStatus", () => {
       if (this.mqttClient !== undefined && this.mqttClient.isConnected()) {
-        return "connected";
+        return "Connected";
       }
-      return "disconnected";
+      return "Disconnected";
     });
-  }
-
-  connectToMQTT() {
-    // if the mqtt client is connected already we want to disconnect from it and then connect
-    if (this.mqttClient !== undefined && this.mqttClient.isConnected()) {
-      this.mqttClient.disconnect();
-    }
-
-    // Retrieve certificate and private key from secure store
     const privateKeyPem = getSecret("privateKey");
     const certificateBase64 = getSecret("certificate");
     const userId = getSecret("userId");
@@ -63,36 +84,39 @@ class MqttModule implements AppModule {
     if (!privateKeyPem || !certificateBase64 || !userId) {
       return;
     }
+  }
 
-    // Decode the base64 encoded certificate and convert to PEM format if needed
-    const certificatePem = convertBase64CertificateToPem(certificateBase64);
+  async connectToMQTT() {
+    await this.connectMutex(async () => {
+      // if the mqtt client is connected already we want to disconnect from it and then connect
+      if (this.mqttClient !== undefined && this.mqttClient.isConnected()) {
+        this.mqttClient.disconnect();
+      }
 
-    this.mqttClient = new MqttClient({
-      host: "localhost",
-      port: 8883,
-      protocol: "mqtts",
-      tls: {
-        ca: fs.readFileSync(new URL("../certs/ca.crt", import.meta.url)),
-        cert: certificatePem,
-        key: privateKeyPem,
-      },
-      userId,
-    });
+      // Retrieve certificate and private key from secure store
+      const privateKeyPem = getSecret("privateKey");
+      const certificateBase64 = getSecret("certificate");
+      const userId = getSecret("userId");
 
-    this.mqttClient.on("Connected", () => {
-      BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("mqtt:status", { status: "Connected" });
+      if (!privateKeyPem || !certificateBase64 || !userId) {
+        return;
+      }
+
+      // Decode the base64 encoded certificate and convert to PEM format if needed
+      const certificatePem = convertBase64CertificateToPem(certificateBase64);
+
+      this.mqttClient?.connect({
+        host: "localhost",
+        port: 8883,
+        protocol: "mqtts",
+        tls: {
+          ca: fs.readFileSync(new URL("../certs/ca.crt", import.meta.url)),
+          cert: certificatePem,
+          key: privateKeyPem,
+        },
+        userId,
       });
     });
-
-    this.mqttClient.on("Disconnected", () => {
-      BrowserWindow.getAllWindows().forEach((win) => {
-        win.webContents.send("mqtt:status", { status: "Disconnected" });
-      });
-    });
-
-    // Connect to broker
-    this.mqttClient.connect();
   }
 }
 

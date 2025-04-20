@@ -61,7 +61,7 @@ export class MqttClient extends EventEmitter {
   }
   private client: mqtt.MqttClient | null = null;
 
-  private options: MqttOptions;
+  private options: MqttOptions | null = null;
 
   private connected: boolean = false;
 
@@ -77,8 +77,17 @@ export class MqttClient extends EventEmitter {
 
   private queryResTopic = "";
 
-  constructor(options: MqttOptions) {
+  constructor() {
     super();
+  }
+
+  /**
+   * Connect to the MQTT broker
+   */
+  public async connect(options: MqttOptions): Promise<void> {
+    // Centralized teardown
+    await this.disconnect();
+
     this.options = options;
 
     // set up the topics
@@ -87,12 +96,7 @@ export class MqttClient extends EventEmitter {
     this.newChunkTopic = `new_chunk/${this.options.userId}`;
     this.newCrawlTopic = `new_crawl/${this.options.userId}`;
     this.queryResTopic = `query_res/${this.options.userId}`;
-  }
 
-  /**
-   * Connect to the MQTT broker
-   */
-  public connect(): void {
     const { host, port, protocol = "mqtts", ...restOptions } = this.options;
     const connectUrl = `${protocol}://${host}:${port}`;
 
@@ -138,7 +142,14 @@ export class MqttClient extends EventEmitter {
     });
 
     this.client.on("message", (topic, message) => {
-      this.handleMessage(topic, message);
+      try {
+        this.handleMessage(topic, message);
+      } catch (err) {
+        console.error(
+          `[MQTT] Error in handleMessage for topic '${topic}':`,
+          err
+        );
+      }
     });
   }
 
@@ -187,6 +198,9 @@ export class MqttClient extends EventEmitter {
    */
   private async chunkFile(filePath: string): Promise<void> {
     try {
+      if (!this.options) {
+        return;
+      }
       // Get file stats to extract creation and modification dates
       const stats = await fs.stat(filePath);
       const dateCreated = stats.birthtime;
@@ -282,7 +296,7 @@ export class MqttClient extends EventEmitter {
    * @param message The protobuf binary message containing file paths to process
    */
   private async handleCrawlRequest(message: Buffer): Promise<void> {
-    if (this.uploadingFiles) {
+    if (this.uploadingFiles || !this.options) {
       return;
     }
     this.uploadingFiles = true;
@@ -508,24 +522,39 @@ export class MqttClient extends EventEmitter {
     // Serialize and send the request
     const serializedMessage = proto.NewCrawl.encode(crawlRequest).finish();
     const messageBuffer = Buffer.from(serializedMessage);
-
     await this.send(this.newCrawlTopic, messageBuffer);
   }
 
   /**
    * Disconnect from the MQTT broker
    */
-  public disconnect(): void {
-    if (!this.client) {
-      return;
-    }
-
-    // Remove all listeners to avoid leaks or duplicate handlers on reconnect
-    this.client.removeAllListeners();
-    this.client.end(false, () => {
-      this.connected = false;
-      this.client = null;
-      this.emit("Disconnected");
+  public disconnect(): Promise<void> {
+    return new Promise((resolve) => {
+      if (this.client) {
+        this.client.removeAllListeners();
+        this.client.end(true, () => {
+          this.client = null;
+          this.connected = false;
+          this.emit("Disconnected");
+          // Always reset topics and options
+          this.crawlReqTopic = "";
+          this.queryReqTopic = "";
+          this.newChunkTopic = "";
+          this.newCrawlTopic = "";
+          this.queryResTopic = "";
+          this.options = null;
+          resolve();
+        });
+      } else {
+        // No client, just cleanup
+        this.crawlReqTopic = "";
+        this.queryReqTopic = "";
+        this.newChunkTopic = "";
+        this.newCrawlTopic = "";
+        this.queryResTopic = "";
+        this.options = null;
+        resolve();
+      }
     });
   }
 

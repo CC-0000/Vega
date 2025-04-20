@@ -13,6 +13,8 @@ import { dialogModule } from "./modules/DialogModule.js";
 import { fileOpsModule } from "./modules/FileOpsModule.js";
 
 export async function initApp(initConfig: AppInitConfig) {
+  const mqtt = mqttModule();
+
   const moduleRunner = createModuleRunner()
     .init(
       createWindowManagerModule({
@@ -25,7 +27,7 @@ export async function initApp(initConfig: AppInitConfig) {
     .init(hardwareAccelerationMode({ enable: false }))
     .init(autoUpdater())
     .init(secretsModule())
-    .init(mqttModule())
+    .init(mqtt)
     .init(dialogModule())
     .init(fileOpsModule())
 
@@ -61,4 +63,6 @@ export async function initApp(initConfig: AppInitConfig) {
     );
 
   await moduleRunner;
+
+  await mqtt.connectToMQTT();
 }
