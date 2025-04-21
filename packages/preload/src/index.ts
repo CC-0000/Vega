@@ -26,8 +26,19 @@ function deleteSecret(key: string) {
   return ipcRenderer.invoke("secrets:delete", key);
 }
 
-function secretLogin(certificate: string, privateKey: string, userId: string) {
-  return ipcRenderer.invoke("secrets:login", certificate, privateKey, userId);
+function secretLogin(
+  certificate: string,
+  privateKey: string,
+  userId: string,
+  alias: string
+) {
+  return ipcRenderer.invoke(
+    "secrets:login",
+    certificate,
+    privateKey,
+    userId,
+    alias
+  );
 }
 
 function secretLogout() {

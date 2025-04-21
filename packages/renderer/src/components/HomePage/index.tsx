@@ -41,7 +41,15 @@ interface FolderItem {
 }
 
 function HomePage() {
-  const { logout } = useAuth();
+  const [currentHour, setCurrentHour] = useState<number>(new Date().getHours());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHour(new Date().getHours());
+    }, 60_000); // update every minute
+    return () => clearInterval(interval);
+  }, []);
+  const { logout, alias } = useAuth();
   const [mqttStatus, setMqttStatus] = useState<string>("Unknown");
   const [files, setFiles] = useState<FileItem[]>([]);
   const [folders, setFolders] = useState<FolderItem[]>([]);
@@ -523,7 +531,7 @@ function HomePage() {
         </div>
 
         <div className="file-explorer">
-          <h1>Good morning, Chung</h1>
+          <h1>{getGreetingForHour(currentHour)}, {alias}</h1>
 
           <div className="action-buttons">
             <button
@@ -693,6 +701,10 @@ function HomePage() {
       </div>
     </div>
   );
+}
+
+function getGreetingForHour(hour: number): string {
+  return hour < 12 ? "Good morning" : "Good evening";
 }
 
 export default HomePage;

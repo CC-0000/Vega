@@ -114,6 +114,7 @@ function Login() {
 
       // Handle successful login
       const userId = loginResponse.data.user_id;
+      const alias = loginResponse.data.alias;
 
       // Step 2: Generate RSA key pair and CSR
       const { privateKey, csrBase64 } = await generateKeyPairAndCSR(userId);
@@ -128,7 +129,7 @@ function Login() {
       const certificateBase64 = csrResponse.data.certificate_base64;
 
       // Step 4: Store userId, certificate, and privateKey securely
-      await login(userId, certificateBase64, privateKey);
+      await login(userId, certificateBase64, privateKey, alias);
 
       // Step 5: Complete authentication
       setAuthState((prev) => ({

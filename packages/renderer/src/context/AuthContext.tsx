@@ -12,6 +12,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [alias, setAlias] = useState<string | null>(null);
 
   // Function to check and update authentication state
   const refreshAuthState = async () => {
@@ -39,10 +40,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (
     newUserId: string,
     certificate: string,
-    privateKey: string
+    privateKey: string,
+    alias: string
   ) => {
-    await secretLogin(certificate, privateKey, newUserId);
+    await secretLogin(certificate, privateKey, newUserId, alias);
     setUserId(newUserId);
+    setAlias(alias);
     setIsAuthenticated(true);
     await connectToMqtt();
   };
@@ -69,11 +72,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated,
       isLoading,
       userId,
+      alias,
       login,
       logout,
       refreshAuthState,
     }),
-    [isAuthenticated, isLoading, userId]
+    [isAuthenticated, isLoading, userId, alias]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

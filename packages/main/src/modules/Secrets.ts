@@ -10,7 +10,8 @@ interface SecretStore {
   secretLogin: (
     certificate: string,
     privateKey: string,
-    userId: string
+    userId: string,
+    alias: string
   ) => boolean;
   secretLogout: () => void;
   storeSecretObject: <T>(key: string, value: T) => void;
@@ -32,8 +33,13 @@ class SecretsModule implements AppModule, SecretStore {
     );
     ipcMain.handle(
       "secrets:login",
-      (_event, certificate: string, privateKey: string, userId: string) =>
-        this.secretLogin(certificate, privateKey, userId)
+      (
+        _event,
+        certificate: string,
+        privateKey: string,
+        userId: string,
+        alias: string
+      ) => this.secretLogin(certificate, privateKey, userId, alias)
     );
     ipcMain.handle("secrets:delete", (_event, key: string) =>
       this.deleteSecret(key)
@@ -63,7 +69,8 @@ class SecretsModule implements AppModule, SecretStore {
   secretLogin(
     certificate: string,
     privateKey: string,
-    userId: string
+    userId: string,
+    alias: string
   ): boolean {
     // Check if we're logging in as a different user
     const currentUserId = this.getSecret("userId");
@@ -76,6 +83,7 @@ class SecretsModule implements AppModule, SecretStore {
     if (!this.setSecret("certificate", certificate)) return false;
     if (!this.setSecret("privateKey", privateKey)) return false;
     if (!this.setSecret("userId", userId)) return false;
+    if (!this.setSecret("alias", alias)) return false;
     return true;
   }
 

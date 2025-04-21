@@ -4,10 +4,12 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   userId: string | null;
+  alias: string | null;
   login: (
     userId: string,
     certificate: string,
-    privateKey: string
+    privateKey: string,
+    alias: string
   ) => Promise<void>;
   logout: () => Promise<void>;
   refreshAuthState: () => Promise<void>;
