@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@app/electron-versions": "*",
+    "vite-plugin-static-copy": "latest",
     "electron-devtools-installer": "3.2.0",
     "ts-proto": "^2.7.0",
     "typescript": "5.8.3",

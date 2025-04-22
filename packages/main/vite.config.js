@@ -1,6 +1,7 @@
 import {getNodeMajorVersion} from '@app/electron-versions';
 import {spawn} from 'child_process';
 import electronPath from 'electron';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default /**
  * @type {import('vite').UserConfig}
@@ -27,6 +28,14 @@ export default /**
   },
   plugins: [
     handleHotReload(),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'src/assets/*',
+          dest: 'assets'
+        }
+      ]
+    })
   ],
 });
 
