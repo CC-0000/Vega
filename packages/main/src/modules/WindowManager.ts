@@ -27,7 +27,13 @@ class WindowManager implements AppModule {
   async enable({ app }: ModuleContext): Promise<void> {
     await app.whenReady();
     this.createTray(app);
-    await this.restoreOrCreateWindow(true);
+
+    // Check if launched with --hidden argument (e.g., from startup)
+    const shouldStartHidden = process.argv.includes('--hidden');
+
+    // Create the window, but only show it if not starting hidden
+    await this.restoreOrCreateWindow(!shouldStartHidden);
+
     app.on("second-instance", () => this.restoreOrCreateWindow(true));
     app.on("activate", () => this.restoreOrCreateWindow(true));
   }

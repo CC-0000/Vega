@@ -1,3 +1,4 @@
+import { app } from "electron";
 import type { AppInitConfig } from "./AppInitConfig.js";
 import { createModuleRunner } from "./ModuleRunner.js";
 import { disallowMultipleAppInstance } from "./modules/SingleInstanceApp.js";
@@ -10,6 +11,7 @@ import { secretsModule } from "./modules/Secrets.js";
 import { mqttModule } from "./modules/MqttModule.js";
 import { dialogModule } from "./modules/DialogModule.js";
 import { fileOpsModule } from "./modules/FileOpsModule.js";
+import { startupSettingsModule } from "./modules/StartupSettingsModule.js";
 
 export async function initApp(initConfig: AppInitConfig) {
   const mqtt = mqttModule();
@@ -28,6 +30,7 @@ export async function initApp(initConfig: AppInitConfig) {
     .init(mqtt)
     .init(dialogModule())
     .init(fileOpsModule())
+    .init(startupSettingsModule())
 
     // Install DevTools extension if needed
     // .init(chromeDevToolsExtension({extension: 'VUEJS3_DEVTOOLS'}))

@@ -37,6 +37,6 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - run: gh release create v${{inputs.app-version}} dist/Indeq* dist/latest*.yml --repo ${{github.repository}}
+      - run: gh release create v${{inputs.app-version}} dist/Indeq* dist/latest*.yml --repo ${{github.repository}} --title "Indeq v${{inputs.app-version}}"
         env:
           GH_TOKEN: ${{ github.token }}
