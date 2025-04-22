@@ -11,7 +11,6 @@ import {
   RefreshCw,
   Info,
   Home,
-  User,
 } from "react-feather";
 import { useAuth } from "../../context/AuthContext.defs";
 import {
@@ -476,12 +475,12 @@ function HomePage() {
           <div className="sidebar-icon active">
             <Home size={24} />
           </div>
-          <div className="sidebar-icon">
+          {/* <div className="sidebar-icon">
             <User size={24} />
           </div>
           <div className="sidebar-icon">
             <Info size={24} />
-          </div>
+          </div> */}
         </div>
         <div className="sidebar-bottom">
           <button
@@ -531,7 +530,9 @@ function HomePage() {
         </div>
 
         <div className="file-explorer">
-          <h1>{getGreetingForHour(currentHour)}, {alias}</h1>
+          <h1>
+            {getGreetingForHour(currentHour)}, {alias}
+          </h1>
 
           <div className="action-buttons">
             <button

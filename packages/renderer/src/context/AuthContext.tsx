@@ -21,13 +21,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         const certificate = await getSecret("certificate");
         const storedUserId = await getSecret("userId");
+        const storedAlias = await getSecret("alias");
 
         setIsAuthenticated(!!certificate);
         setUserId(storedUserId || null);
+        setAlias(storedAlias || null);
       } catch (error) {
         console.error("Error checking auth state:", error);
         setIsAuthenticated(false);
         setUserId(null);
+        setAlias(null);
       } finally {
         setIsLoading(false);
       }
