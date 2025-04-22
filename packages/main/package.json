@@ -21,6 +21,7 @@
     "@app/preload": "*",
     "@app/renderer": "*",
     "@bufbuild/protobuf": "^2.2.5",
+    "electron-auto-launch": "^5.0.7",
     "electron-store": "^10.0.1",
     "electron-updater": "6.6.2",
     "mqtt": "^5.11.0",
@@ -29,10 +30,10 @@
   },
   "devDependencies": {
     "@app/electron-versions": "*",
-    "vite-plugin-static-copy": "latest",
     "electron-devtools-installer": "3.2.0",
     "ts-proto": "^2.7.0",
     "typescript": "5.8.3",
-    "vite": "6.3.1"
+    "vite": "6.3.1",
+    "vite-plugin-static-copy": "latest"
   }
 }

@@ -1,31 +1,48 @@
 import { app } from "electron";
 import type { AppModule } from '../AppModule.js'; // Import AppModule interface
+import AutoLaunch from 'electron-auto-launch'; // Import the new package
 
 /**
- * Configures application startup settings, such as launching on login.
+ * Configures application startup settings using electron-auto-launch for cross-platform compatibility.
  */
 class StartupSettings implements AppModule {
+  #autoLauncher: AutoLaunch;
 
-  // No constructor arguments needed for this simple module yet
-  constructor() {}
-
-  async enable(): Promise<void> {
-    this.configureLaunchOnLogin();
-    console.log("StartupSettingsModule enabled (launch-on-login configured).");
+  constructor() {
+    // Configure auto-launch
+    // Ensure the app path is correct, especially for packaged apps
+    const appPath = app.getPath('exe').replace(/\//g, '/'); // Normalize path separators
+    this.#autoLauncher = new AutoLaunch({
+      name: app.getName(),
+      path: appPath,
+      isHidden: true, // Corresponds to the '--hidden' argument we used before
+    });
   }
 
-  private configureLaunchOnLogin() {
-    // Configure the app to launch on login for production builds
+  async enable(): Promise<void> {
     if (!import.meta.env.DEV) {
       try {
-        app.setLoginItemSettings({
-          openAtLogin: true,
-          // Add --hidden argument for WindowManager to detect startup launch
-          args: ['--hidden']
-        });
-        console.log("Configured app to launch on login.");
+        const isEnabled = await this.#autoLauncher.isEnabled();
+        if (!isEnabled) {
+          await this.#autoLauncher.enable();
+          console.log("Auto-launch enabled.");
+        }
       } catch (error) {
-        console.error("Failed to set login item settings:", error);
+        console.error("Failed to enable auto-launch:", error);
+      }
+    } else {
+      console.log("Auto-launch skipped in development mode.");
+    }
+  }
+
+  // Optional: Add a disable method if needed later
+  async disable(): Promise<void> {
+    if (!import.meta.env.DEV) {
+      try {
+        await this.#autoLauncher.disable();
+        console.log("Auto-launch disabled.");
+      } catch (error) {
+        console.error("Failed to disable auto-launch:", error);
       }
     }
   }
@@ -35,5 +52,5 @@ class StartupSettings implements AppModule {
  * Factory function to create an instance of the StartupSettings module.
  */
 export function startupSettingsModule(...args: ConstructorParameters<typeof StartupSettings>) {
-  return new StartupSettings(...args);
+  return new StartupSettings(...args); 
 }
