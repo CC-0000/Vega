@@ -3,7 +3,7 @@ import axios from "axios";
 import * as forge from "node-forge";
 import "./styles.css";
 import { useAuth } from "../../context/AuthContext.defs";
-import googleIcon from "../../assets/react.svg";
+import googleIcon from "../../assets/google-icon.svg";
 import { getAppConstants } from "@app/preload";
 
 interface AuthState {
