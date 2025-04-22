@@ -5,6 +5,8 @@ import {pathToFileURL} from 'node:url';
 
 export default /** @type import('electron-builder').Configuration */
 ({
+  appId: 'com.indeq.app', // Add a unique App ID
+  productName: 'Indeq', // Add the product name
   directories: {
     output: 'dist',
     buildResources: 'buildResources',
@@ -12,6 +14,7 @@ export default /** @type import('electron-builder').Configuration */
   generateUpdatesFilesForAllChannels: true,
   linux: {
     target: ['deb'],
+    artifactName: '${productName}-${version}.${ext}', // Cleaner name for deb
   },
   /**
    * It is recommended to avoid using non-standard characters such as spaces in artifact names,

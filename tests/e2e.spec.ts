@@ -20,9 +20,9 @@ const test = base.extend<TestFixtures>({
       /**
        * Executable path depends on root package name!
        */
-      let executablePattern = "dist/*/root{,.*}";
+      let executablePattern = "dist/*/indeq{,.*}";
       if (platform === "darwin") {
-        executablePattern += "/Contents/*/root";
+        executablePattern += "/Contents/*/indeq";
       }
 
       const [executablePath] = globSync(executablePattern);
@@ -43,8 +43,10 @@ const test = base.extend<TestFixtures>({
 
       await use(electronApp);
 
-      // This code runs after all the tests in the worker process.
-      await electronApp.close();
+      // Forcefully quit the app during teardown to bypass custom close handlers
+      await electronApp.evaluate(({ app }) => {
+        app.exit(0);
+      });
     },
     { scope: "worker", auto: true } as any,
   ],
